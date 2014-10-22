@@ -60,7 +60,8 @@ module DelayedPaperclip
         # instance.update_column("#{name}_processing", false) if instance.respond_to?(:"#{name}_processing?")
         if instance.respond_to?(:"#{name}_processing?")
           instance.send("#{name}_processing=", false)
-          instance.class.where(instance.class.primary_key => instance.id).update_all({ "#{name}_processing" => false })
+          #instance.class.where(instance.class.primary_key => instance.id).update_all({ "#{name}_processing" => false })
+          instance.class.update_all({ "#{name}_processing" => false } , " #{instance.class.primary_key} = #{instance.id}")
         end
       end
 

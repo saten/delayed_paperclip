@@ -11,7 +11,8 @@ Gem::Specification.new do |s|
   s.email       = %q{james@jamesrgifford.com}
   s.homepage    = %q{http://github.com/jrgifford/delayed_paperclip}
 
-  s.add_dependency 'paperclip', [">= 3.3.0"]
+  #s.add_dependency 'paperclip', [">= 3.3.0"]
+  s.add_dependency 'paperclip', [">= 2.7.5"]
 
   s.add_development_dependency 'mocha'
   s.add_development_dependency "rspec"

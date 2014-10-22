@@ -23,6 +23,8 @@ module DelayedPaperclip
 
     def processor
       options[:background_job_class]
+      #non funge la riga sopra, sa la madonna perché
+      DelayedPaperclip::Jobs::DelayedJob
     end
 
     def enqueue(instance_klass, instance_id, attachment_name)
@@ -99,7 +101,8 @@ module DelayedPaperclip
       unless @_enqued_for_processing_with_processing.blank? # catches nil and empty arrays
         updates = @_enqued_for_processing_with_processing.collect{|n| "#{n}_processing = :true" }.join(", ")
         updates = ActiveRecord::Base.send(:sanitize_sql_array, [updates, {:true => true}])
-        self.class.where(:id => self.id).update_all(updates)
+        #self.class.where(:id => self.id).update_all(updates)
+        self.class.update_all(updates,"id = #{self.id}")
       end
     end
 
