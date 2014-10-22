@@ -24,7 +24,7 @@ module DelayedPaperclip
     end
 
     def enqueue(instance_klass, instance_id, attachment_name)
-      processor.enqueue_delayed_paperclip(instance_klass, instance_id, attachment_name)
+      DelayedPaperclip::Jobs::DelayedJob.enqueue_delayed_paperclip(instance_klass, instance_id, attachment_name)
     end
 
     def process_job(instance_klass, instance_id, attachment_name)
@@ -38,6 +38,7 @@ module DelayedPaperclip
   module Glue
     def self.included base #:nodoc:
       base.extend(ClassMethods)
+      base.send :include, InstanceMethods
     end
   end
 
@@ -95,7 +96,7 @@ module DelayedPaperclip
       unless @_enqued_for_processing_with_processing.blank? # catches nil and empty arrays
         updates = @_enqued_for_processing_with_processing.collect{|n| "#{n}_processing = :true" }.join(", ")
         updates = ActiveRecord::Base.send(:sanitize_sql_array, [updates, {:true => true}])
-        self.class.where(:id => self.id).update_all(updates)
+        self.class.update_all(updates,"id = #{self.id}")
       end
     end
 
