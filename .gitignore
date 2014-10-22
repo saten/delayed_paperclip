@@ -3,3 +3,4 @@
 pkg/
 public/
 *.gem
+./gemfiles/rails*.lock

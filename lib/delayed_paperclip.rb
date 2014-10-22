@@ -10,17 +10,21 @@ module DelayedPaperclip
     def options
       @options ||= {
         :background_job_class => detect_background_task,
-        :url_with_processing  => true
+        :url_with_processing  => true,
+        :processing_image_url => nil
       }
     end
 
     def detect_background_task
       return DelayedPaperclip::Jobs::DelayedJob if defined? ::Delayed::Job
       return DelayedPaperclip::Jobs::Resque     if defined? ::Resque
+      return DelayedPaperclip::Jobs::Sidekiq    if defined? ::Sidekiq
     end
 
     def processor
       options[:background_job_class]
+      #non funge la riga sopra, sa la madonna perché
+      DelayedPaperclip::Jobs::DelayedJob
     end
 
     def enqueue(instance_klass, instance_id, attachment_name)
@@ -36,7 +40,7 @@ module DelayedPaperclip
   end
 
   module Glue
-    def self.included base #:nodoc:
+    def self.included(base)
       base.extend(ClassMethods)
       base.send :include, InstanceMethods
     end
@@ -96,6 +100,7 @@ module DelayedPaperclip
       unless @_enqued_for_processing_with_processing.blank? # catches nil and empty arrays
         updates = @_enqued_for_processing_with_processing.collect{|n| "#{n}_processing = :true" }.join(", ")
         updates = ActiveRecord::Base.send(:sanitize_sql_array, [updates, {:true => true}])
+        #self.class.where(:id => self.id).update_all(updates)
         self.class.update_all(updates,"id = #{self.id}")
       end
     end
